@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<title> Hacking Deep Learning Algorithms </title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	</head>
+
+	<body>
+		<p><b> Hacking Deep Learning Algorithms: A Web Demo </b></p>
+		<hr>
+		{% for message in get_flashed_messages() %}
+			<div class="flash">{{ message }}</div>
+		{% endfor %}
+
+		<form method="POST" action="{{url_for('run_task')}}" enctype="multipart/form-data">
+			{{ form.hidden_tag() }}
+			<p><b> Step 1. Specify your hacking task: </b></p>
+			<p> Target algorithm{% if advmode %}(s) &ndash; now you can select multiple to break them at once as well{% endif %} {{form.select_network}} </p>
+			<p> You want the image to be classified as {{form.select_target}} <a href={{url_for('static',filename='glossary.html')}}>(ImageNet Challenge glossary)</a> </p>
+			
+			<p><b> Step 2. Pick an initial image and hack it: </b></p>
+			<p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:110px"> </p>
+			<p> <input type="submit" name="start" value="{{form.tasks[2]}}" style="width:110px"> (&lt; 2MB) {{form.image_url}}  </p>
+			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:110px"> (&lt; 2MB) {{form.image_file}} </p>
+			
+			{% if taskid %}
+			<hr>
+				<p><b> Results: </b></p>
+				<p> Task targeting <i>{{taskpar}}</i> (task ID: {{taskid}}). </p>
+				<table>			
+					<tr> 
+						<td align="center"> <img src={{url_for('static',filename='%s.png' % taskid)}}>  </td>
+						
+						{% if results %}
+							<td align="center"> <img src={{url_for('static',filename='%s-out.png' % taskid)}}> </td>
+						{% else %}
+							<td align="center"> <img src={{url_for('static',filename='loader.gif')}} width="225" height="225" border="1"> </td>
+						{% endif %}
+						
+						{% if results %}
+							<td align="center"> <img src={{url_for('static',filename='%s-sal.png' % taskid)}}> </td>
+						{% else %}
+							<td align="center"> <img src={{url_for('static',filename='loader.gif')}} width="225" height="225" border="1"> </td>
+						{% endif %}
+					</tr>
+					<tr>
+						<td align="center"> <b>Initial Image</b> <br> {% if ori_class %} <small>Classified as {{ori_class}}.</small> {% endif %} </td>
+						<td align="center"> <b>Hacked Image</b>  <br> {% if out_class %} <small>Classified as {{out_class}}.</small> {% endif %} </td>
+						<td align="center"> <b>Heat Map</b>  <br> <small>Where the algorithm(s) got fooled.</small> </td>
+					</tr>
+				</table>
+				<p> 
+					{% if results %} {{results}}
+					{% else %} Wait a bit and reload page to see the hacking results (depends on the difficulty of your task; usually &lt; 1 minutes).
+					{% endif %}
+				</p>
+			{% endif %}
+		</form>
+		
+		{% if taskid and not results %}
+			<form method="POST" action="{{url_for('del_task')}}">
+				<p> <input type="submit" name="stop" value="!!Delete Task!!" style="width:110px"> </p>
+			</form>
+			
+			<script>
+				var inputs = document.getElementsByTagName("input");
+				for (var i = 0; i < inputs.length; i++) {if (inputs[i].name === "start") {inputs[i].disabled = true;}}
+			</script>
+		{% endif %}
+				
+		{% if not advmode %}
+			<script>
+				var disableMultiSelection = function(group){
+					return function() {var isChecked= $(this).prop("checked"); $(group).prop("checked", false); $(this).prop("checked", isChecked);} };
+
+				$("[id^=select_network-]").click(disableMultiSelection("[id^=select_network-]"));
+			</script>
+		{% endif %}
+		
+		<hr>
+		This work is based on <a href="http://www.vlfeat.org/matconvnet/">MatConvNet</a> and <a href="http://www.cs.ubc.ca/~schmidtm/Software/minConf.html">minConf</a>.
+	</body>
+</html>
+

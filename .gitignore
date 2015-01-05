@@ -1,0 +1,15 @@
+# Ignore
+.*
+*.pyc
+*.mat
+*.png
+log/*.txt
+MCR/*
+run/demo
+run/run_demo.sh
+keys.py
+
+# Except
+!.gitignore
+!log/example*
+!static/example*

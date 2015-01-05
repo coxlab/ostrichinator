@@ -9,34 +9,31 @@ import numpy
 from flask import Flask, request, session, redirect, url_for, render_template, flash
 from flask_wtf import Form
 from wtforms import SelectMultipleField, widgets, SelectField
-from flask_wtf.file import FileField # FileAllowed, FileRequired
+from flask_wtf.file import FileField
 from wtforms.fields.html5 import URLField
 from wtforms.validators import DataRequired, url
-#from flask_wtf import RecaptchaField
+from flask_wtf import RecaptchaField
+from keys import *
 
-#from htmlmin.minify import html_minify
 from gevent.wsgi import WSGIServer
 from gevent import monkey; monkey.patch_all()
 
-DEBUG = True
-SECRET_KEY = 'secret'
-
-#RECAPTCHA_PUBLIC_KEY = '6LeYIbsSAAAAACRPIllxA7wvXjIE411PfdB2gt2J'
-#RECAPTCHA_PRIVATE_KEY = '6LeYIbsSAAAAAJezaIq3Ft_hSTo0YtyeFG-JgRtu'
+import redis; client = redis.Redis(host="localhost", port=6379, db=1)
+from run.run import run_backend
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
-run_inst = '(run/run_demo.sh MCR/v84/ static/{0}.png run/ 1 50 1 1 {1} {4} {2} {4} {3} {4} >> log/{0}.txt 2>&1 &)' # see run/src/demo.m for definitions
-networks = [('1','Berkeley CaffeNet (ImageNet Challenge 2012 Winning Level) [1]'), ('2','Oxford CNN-S (ImageNet Challenge 2013 Winning Level) [2]'), ('3','Oxford VeryDeep-19 (ImageNet Challenge 2014 Winning Level) [3]')]
+networks = [('1','Berkeley CaffeNet (ImageNet challenge 2012 winning level) [<a href="http://arxiv.org/abs/1408.5093">1</a>]'), 
+            ('2','Oxford CNN-S (ImageNet challenge 2013 winning level) [<a href="http://arxiv.org/abs/1405.3531">2</a>]'), 
+            ('3','Oxford VeryDeep-19 (ImageNet challenge 2014 winning level) [<a href="http://arxiv.org/abs/1409.1556">3</a>]')]
 
 with open('synset_words.txt') as f:
 	labels = pandas.DataFrame([
 		{'synset_id': l.strip().split(' ')[0], 'name': ' '.join(l.strip().split(' ')[1:]).split(',')[0]} for l in f.readlines() ])
 
 labels = labels['name'].values
-#labels = labels.sort('synset_id')['name'].values
 labels = [(str(i+1), '('+str(i+1).zfill(4)+') '+labels[i]) for i in xrange(labels.size)]
 
 class MultiCheckboxField(SelectMultipleField):
@@ -44,48 +41,55 @@ class MultiCheckboxField(SelectMultipleField):
 	widget = widgets.ListWidget(html_tag='ul', prefix_label=False)
 	option_widget = widgets.CheckboxInput()
 
-class RunForm(Form):
+class TaskForm(Form):
 
-	#tasks = ['Random Noise', 'Uploaded Image', 'Image at URL']
-	tasks = ['Gray Image', 'Uploaded Image', 'Image at URL']
-	select_network = MultiCheckboxField(choices=networks, default=['1'], validators=[DataRequired()])
-	select_target = SelectField(choices=labels, default=['1'], validators=[DataRequired()])
+	tasks = ['Random Noise', 'Uploading Image', 'Image at URL']
+	network_selection = MultiCheckboxField(choices=networks, default=['1'], validators=[DataRequired()])
+	label_selection = SelectField(choices=labels, default=['1'], validators=[DataRequired()])
 	image_file = FileField()
 	image_url = URLField(default='http://blogs.mathworks.com/images/loren/173/imdecompdemo_01.png')
-	#recaptcha = RecaptchaField()
+	recaptcha = RecaptchaField()
 
 def valid_uuid(uuid):
 
-    try:
-        val = UUID(uuid, version=4)
-    except ValueError:
-        return False
+	try: val = UUID(uuid, version=4)
+	except ValueError: return False
+	return val.hex == uuid
 
-    return val.hex == uuid
+def get_srv_load():
+	
+	def get_worker_num():
+		try: worker_num = os.environ['CELERY_TOTAL_CORES']
+		except: worker_num = 128
+		return worker_num
+	
+	try: srv_load = 100 * client.llen("celery") / get_worker_num()
+	except: srv_load = 100
+	return srv_load
 
 @app.route('/')
 def index():
-	
+
 	req_taskid = request.args.get('taskid', '')
-	if valid_uuid(req_taskid):
-		session['taskid'] = req_taskid; # DELETE OLD TASK
+	if valid_uuid(req_taskid) or (req_taskid.find('example') == 0):
+		session['taskid'] = req_taskid # DELETE OLD TASK?
 		return redirect(url_for('index'))
 	
-	form = RunForm()
-	session.permanent = True	
+	form = TaskForm()
+	session.permanent = True
 	
-	advmode = taskid = taskpar = results = ori_class = out_class = '';
-		
-	if 'advmode' in session:
-		advmode = session['advmode']
+	advmode = ''; 
+	task_info = {'taskid':'','taskpar':'','results':'','ori_class':'','new_class':''}	
 	
-	if 'taskid' in session:
-		taskid = session['taskid'];
+	if 'advmode' in session: advmode = session['advmode']
+	if 'taskid'  in session: task_info['taskid'] = session['taskid']
+	
+	if task_info['taskid']: # and os.path.isfile('static/' + taskid + '.png'):
 
 		#may need to look-up job queue or retired id list later
-		if os.path.isfile('log/' + taskid + '.txt'):
-			taskpar = os.popen('head -n1 log/' + taskid + '.txt').read().replace('\n','')
-			progress = os.popen('tail -n4 log/' + taskid + '.txt').read().split('\n')
+		if os.path.isfile('log/' + task_info['taskid'] + '.txt'):
+			progress = os.popen('tail -n4 log/' + task_info['taskid'] + '.txt').read().split('\n')
+			task_info['taskpar'] = os.popen('head -n1 log/' + task_info['taskid'] + '.txt').read().replace('\n','')
 		else:
 			progress = []
 		
@@ -93,23 +97,24 @@ def index():
 		if len(progress) == 4 and progress[-1] == 'DONE':
 			#os.path.isfile(taskid+'-out.png') and os.path.isfile(taskid+'-sal.png')
 			if (progress[-2] == '1'):
-				results = 'Your task finished sucessfully.'
-				ori_class = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
-				out_class = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
+				task_info['results'] = 'Your task finished sucessfully.'
+				task_info['ori_class'] = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
+				task_info['new_class'] = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
 			elif (progress[-2] == '0'):
-				results = 'Your task didn\'t finish in time limit, and here are the best results we got.'
-				ori_class = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
-				out_class = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
-			else: #'-1', error
-				results = 'Something went wrong and we will look at it. You can come back later and resubmit your task, thanks!'
-				# SET ERROR IMAGE?
+				task_info['results'] = 'Your task didn\'t finish in time limit, and here are the best results we got.'
+				task_info['ori_class'] = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
+				task_info['new_class'] = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
+			else: #'-1', error # DISPLAY ERROR IMAGE?
+				task_info['results'] = 'Something went wrong and we will look at it. You can come back later and resubmit your task, thanks!'
+	#else: taskid = ''
 	
-	return render_template("index.html", form=form, advmode=advmode, taskid=taskid, taskpar=taskpar, results=results, ori_class=ori_class, out_class=out_class)
+	srv_load = '%.2f' % get_srv_load()
+	return render_template("index.html", form=form, advmode=advmode, task_info=task_info, srv_load=srv_load)
 
 @app.route('/run_task', methods=['POST'])
 def run_task():
 
-	form = RunForm()
+	form = TaskForm()
 
 	if not form.validate_on_submit():
 		flash('Incorrect Form!')
@@ -117,8 +122,8 @@ def run_task():
 
 	try:
 		if request.form['start'] == form.tasks[0]:
-			#run_image = numpy.random.randn(227,227,3)
-			run_image = numpy.zeros((227,227,3))
+			run_image = numpy.random.randn(227,227,3)
+			#run_image = numpy.zeros((227,227,3))
 			run_image = (run_image*16/256 + 0.5).clip(0,1)
 			run_image = PILImage.fromarray((run_image*255).astype('uint8'))
 		elif request.form['start'] == form.tasks[1]:
@@ -137,22 +142,27 @@ def run_task():
 
 	try:
 		run_image = run_image.convert('RGB').resize((227,227),PILImage.ANTIALIAS)
-		taskid = str(uuid4()).replace('-','') # DELETE OLD TASK
+		taskid = str(uuid4()).replace('-','') # DELETE OLD TASK?
 		run_image.filename = taskid + '.png'
-		run_image.save('static/' + run_image.filename)
+		#run_image.save('static/' + run_image.filename) # MOVED LATER
 		session['taskid'] = taskid
 	except:
 		flash('Image Processing Error!')
 		return redirect(url_for('index'))
 	
 	try:
+		if (get_srv_load() >= 100.0): session.pop('taskid', None); raise Exception
+
 		with open('log/' + taskid + '.txt', 'w') as f:
-			f.write('Algorithm {0} and Class {1}\n\n'.format('['+', '.join(form.select_network.data)+']', labels[int(form.select_target.data) - 1][1]))
+			f.write('Algorithm {0} and Class {1}\n'.format('['+', '.join(form.network_selection.data)+']', labels[int(form.label_selection.data) - 1][1]))
+				
+		network_selection = [str(int(str(i+1) in form.network_selection.data)) for i in xrange(len(networks))]
+		run_image.save('static/' + run_image.filename) # SAVE WHEN SCHEDULED
+		
 		# RUN NONBLOCKING TASK
-		select_network = [str(int(str(i+1) in form.select_network.data)) for i in xrange(len(networks))]
-		os.system(run_inst.format(session['taskid'], *(select_network + [str(form.select_target.data)])))
+		run_backend.delay([session['taskid']] + network_selection + [str(form.label_selection.data)])
 	except:
-		flash('Task Scheduling Error!')
+		flash('Task Initialization/Scheduling Error!')
 		return redirect(url_for('index'))
 
 	return redirect(url_for('index'))
@@ -160,22 +170,33 @@ def run_task():
 @app.route('/del_task', methods=['POST'])
 def del_task():
 	
-	session.pop('taskid', None) # NEED TO REALLY DELETE OLD TASK
+	session.pop('taskid', None) # DELETE OLD TASK?
 	return redirect(url_for('index'))
+
+
+# only for distributed jobs
+@app.route('/{0}'.format(UPLOAD_PATH), methods=['POST'])
+def upload_result():
+	
+	data = request.files['data']
+	if os.path.splitext(data.filename)[1] == '.png':
+		data.save('static/' + data.filename)
+	elif os.path.splitext(data.filename)[1] == '.txt':
+		with open('log/' + data.filename, 'a') as logfile: logfile.write(data.stream.read())
+	return ''
 
 # trailing slash here
 @app.route('/adv/') 
 def adv_mode(): 
 	
-	if 'advmode' in session:
-		session.pop('advmode', None)
-	else:
-		session['advmode'] = '1'
+	if 'advmode' in session: session.pop('advmode', None)
+	else: session['advmode'] = '1'
 	
 	return redirect(url_for('index'))
 
-# (python app.py &>> log.txt 2>&1 &)
+# export CELERY_TOTAL_CORES=128
+# (python app.py &>> app.log 2>&1 &)
 if __name__ == "__main__":
-	#app.run()
-	http_server = WSGIServer(('0.0.0.0',5900), app); http_server.serve_forever()
+	#app.run(host='0.0.0.0', port=8080, debug = True)
+	http_server = WSGIServer(('0.0.0.0',8080), app); http_server.serve_forever()
 	

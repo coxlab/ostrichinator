@@ -1,64 +1,95 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<title> Hacking Deep Learning Algorithms </title>
+		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{% if task_info['taskid'] and not task_info['results'] %} <meta http-equiv="refresh" content="60" /> {% endif %}
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+		<style type='text/css'> 
+			.flash {background:#F2DEDE; padding:0.5em; display:inline-block}
+			.borderless tbody tr td, .borderless thead tr th {border:none}
+			.table-nonfluid {width:auto}
+			#spinner {text-align:middle; width:227px; height:227px; position:relative}
+			#wrapper {background-color:#ffffff; opacity:0.6; filter:alpha(opacity=60)}
+			ul {list-style:none; padding-left:0}​
+		</style>
+		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="http://fgnass.github.io/spin.js/spin.min.js"></script>
 	</head>
 
 	<body>
-		<p><b> Hacking Deep Learning Algorithms: A Web Demo </b></p>
+	<div class="container-fluid">
+		<h1> Hacking Deep Learning Algorithms <small>A Simple Web Demo</small> </h1>
 		<hr>
 		{% for message in get_flashed_messages() %}
-			<div class="flash">{{ message }}</div>
+			<div class="flash"> {{message}} </div>
 		{% endfor %}
-
+		
 		<form method="POST" action="{{url_for('run_task')}}" enctype="multipart/form-data">
-			{{ form.hidden_tag() }}
-			<p><b> Step 1. Specify your hacking task: </b></p>
-			<p> Target algorithm{% if advmode %}(s) &ndash; now you can select multiple to break them at once as well{% endif %} {{form.select_network}} </p>
-			<p> You want the image to be classified as {{form.select_target}} <a href={{url_for('static',filename='glossary.html')}}>(ImageNet Challenge glossary)</a> </p>
+			{{form.hidden_tag()}}
+			<h2> Step 1 <small>Verify you're a human visitor</small> </h2>
+			{{form.recaptcha}}
+
+			<h2> Step 2 <small>Specify your hacking task</small> </h2>
+			<p> Target deep learning algorithm{% if advmode %}(s) &ndash; <i>select multiple to break them at once</i>{% endif %} {{form.network_selection}} </p>
+			<p> And you want the image to be classified as {{form.label_selection}} (see <a href={{url_for('static',filename='glossary.html')}}>here</a> for definitions.) </p>
 			
-			<p><b> Step 2. Pick an initial image and hack it: </b></p>
-			<p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:110px"> </p>
-			<p> <input type="submit" name="start" value="{{form.tasks[2]}}" style="width:110px"> (&lt; 2MB) {{form.image_url}}  </p>
-			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:110px"> (&lt; 2MB) {{form.image_file}} </p>
+			<h2> Step 3 <small>Pick an image and hack it</small> </h2>
+			<p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:130px" class="btn btn-primary"> </p>
+			<p> <input type="submit" name="start" value="{{form.tasks[2]}}" style="width:130px" class="btn btn-primary"> &nbsp;{{form.image_url}} </p>
+			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:130px" class="btn btn-primary"> &nbsp;<input type="text" name="subfile" id="subfile"> &nbsp;<a class="btn btn-default" onclick="$('#image_file').click();"> Browse </a></p>
+				<div style="position:absolute; left:-999em"> {{form.image_file}} </div>
+				<script> $('#image_file').change(function(){$('#subfile').val($(this).val());}); </script> 
+			<p><i> Image needs to be smaller than 2MB. </i></p>
 			
-			{% if taskid %}
-			<hr>
-				<p><b> Results: </b></p>
-				<p> Task targeting <i>{{taskpar}}</i> (task ID: {{taskid}}). </p>
-				<table>			
-					<tr> 
-						<td align="center"> <img src={{url_for('static',filename='%s.png' % taskid)}}>  </td>
-						
-						{% if results %}
-							<td align="center"> <img src={{url_for('static',filename='%s-out.png' % taskid)}}> </td>
+			{% if task_info['taskid'] %}
+				<h2> Results <small>Task targeting {{task_info['taskpar']}} (<a href={{url_for('index',taskid='%s' % task_info['taskid'])}}>link</a>).</small> </h2>
+				<div class="table-responsive"> <table class="table borderless table-nonfluid">
+					<tr>
+						{% if task_info['results'] %} 
+							<td align="center"> <img class="img-rounded" src={{url_for('static',filename='%s.png' % task_info['taskid'])}}>  </td>						
+							<td align="center"> <img class="img-rounded" src={{url_for('static',filename='%s-out.png' % task_info['taskid'])}}> </td>
+							<td align="center"> <img class="img-rounded" src={{url_for('static',filename='%s-dff.png' % task_info['taskid'])}}> </td>
+							<td align="center"> <img class="img-rounded" src={{url_for('static',filename='%s-sal.png' % task_info['taskid'])}}> </td>
 						{% else %}
-							<td align="center"> <img src={{url_for('static',filename='loader.gif')}} width="225" height="225" border="1"> </td>
-						{% endif %}
-						
-						{% if results %}
-							<td align="center"> <img src={{url_for('static',filename='%s-sal.png' % taskid)}}> </td>
-						{% else %}
-							<td align="center"> <img src={{url_for('static',filename='loader.gif')}} width="225" height="225" border="1"> </td>
+							<td align="center"> <div id="spinner"><div id="wrapper"><img class="img-rounded" src={{url_for('static',filename='%s.png' % task_info['taskid'])}}></div></div> </td>
+							
+							<script>
+								$(document).ready(function () {
+									var opts = {lines:10, length:45, width:10, radius:45, corners:1,  rotate:0, direction:1, color:'#000', speed:0.25, trail:75, shadow:true, hwaccel:false, className:'spin', zIndex:2e9, top:'50%', left:'50%'};
+									var target = document.getElementById('spinner');
+									var spinner = new Spinner(opts).spin(target);});
+							</script>
 						{% endif %}
 					</tr>
 					<tr>
-						<td align="center"> <b>Initial Image</b> <br> {% if ori_class %} <small>Classified as {{ori_class}}.</small> {% endif %} </td>
-						<td align="center"> <b>Hacked Image</b>  <br> {% if out_class %} <small>Classified as {{out_class}}.</small> {% endif %} </td>
-						<td align="center"> <b>Heat Map</b>  <br> <small>Where the algorithm(s) got fooled.</small> </td>
+						{% if task_info['results'] %}
+							<td align="center"> <b>Initial Image</b> <br> {% if task_info['ori_class'] %} Classified as {{task_info['ori_class']}}. {% endif %} </td>
+							<td align="center"> <b>Hacked Image</b> <br> {% if task_info['new_class'] %} Classified as {{task_info['new_class']}}. {% endif %} </td>
+							<td align="center"> <b>Difference</b> <br> Normalized to the range (0&ndash;255). </td>
+							<td align="center"> <b>Heat Map</b> <br> Where the algorithm{% if advmode %}(s){% endif %} got fooled. </td>
+						{% else %}
+							<td align="center"> <b>Hacking in Progress</b> </td>
+						{% endif %}
+						
 					</tr>
-				</table>
+				</table> </div>
 				<p> 
-					{% if results %} {{results}}
-					{% else %} Wait a bit and reload page to see the hacking results (depends on the difficulty of your task; usually &lt; 1 minutes).
+					{% if task_info['results'] %} <b> {{task_info['results']}} </b>
+					{% else %} Wait a bit and the page will reload itself to show the hacking results (depends on the difficulty of your task but usually less than 5 minutes).
 					{% endif %}
 				</p>
 			{% endif %}
 		</form>
 		
-		{% if taskid and not results %}
+		{% if task_info['taskid'] and not task_info['results'] %}
 			<form method="POST" action="{{url_for('del_task')}}">
-				<p> <input type="submit" name="stop" value="!!Delete Task!!" style="width:110px"> </p>
+				<p><i> ONLY in case this is running too long (e.g. over 30 minutes, meaning something may have gone wrong), you are suggested to <input type="submit" name="stop" value="DELETE" class="btn btn-danger btn-sm"> task and resubmit it. </i></p>
 			</form>
 			
 			<script>
@@ -68,16 +99,19 @@
 		{% endif %}
 				
 		{% if not advmode %}
+			<!--You got it. No need to turn off JavaScript, just navigate to /adv and have some more fun.-->
 			<script>
 				var disableMultiSelection = function(group){
 					return function() {var isChecked= $(this).prop("checked"); $(group).prop("checked", false); $(this).prop("checked", isChecked);} };
 
-				$("[id^=select_network-]").click(disableMultiSelection("[id^=select_network-]"));
+				$("[id^=network_selection-]").click(disableMultiSelection("[id^=network_selection-]"));
 			</script>
 		{% endif %}
 		
 		<hr>
-		This work is based on <a href="http://www.vlfeat.org/matconvnet/">MatConvNet</a> and <a href="http://www.cs.ubc.ca/~schmidtm/Software/minConf.html">minConf</a>.
+		This project is created by Chuan-Yung (Kenyon) Tsai, based on <a href="http://www.vlfeat.org/matconvnet/">MatConvNet</a> and <a href="http://www.cs.ubc.ca/~schmidtm/Software/minConf.html">minConf</a>.
+		Server load is {{srv_load}}% now.
+	</div>
 	</body>
 </html>
 

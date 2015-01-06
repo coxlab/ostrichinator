@@ -4,9 +4,9 @@
 *.mat
 *.png
 log/*.txt
-MCR/*
-run/demo
-run/run_demo.sh
+backend/MCR/*
+backend/networks/*
+backend/*demo*
 keys.py
 
 # Except

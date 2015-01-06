@@ -7,19 +7,19 @@ from PIL import Image as PILImage
 import numpy
 
 from flask import Flask, request, session, redirect, url_for, render_template, flash
-from flask_wtf import Form
+from flask_wtf import Form, RecaptchaField
 from wtforms import SelectMultipleField, widgets, SelectField
 from flask_wtf.file import FileField
 from wtforms.fields.html5 import URLField
 from wtforms.validators import DataRequired, url
-from flask_wtf import RecaptchaField
 from keys import *
 
 from gevent.wsgi import WSGIServer
 from gevent import monkey; monkey.patch_all()
 
 import redis; client = redis.Redis(host="localhost", port=6379, db=1)
-from run.run import run_backend
+from backend.run import run_backend
+import backend.info
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -59,9 +59,8 @@ def valid_uuid(uuid):
 def get_srv_load():
 	
 	def get_worker_num():
-		try: worker_num = os.environ['CELERY_TOTAL_CORES']
-		except: worker_num = 128
-		return worker_num
+		#reload(backend.info)
+		return backend.info.WORKER_NUM
 	
 	try: srv_load = 100 * client.llen("celery") / get_worker_num()
 	except: srv_load = 100
@@ -194,7 +193,6 @@ def adv_mode():
 	
 	return redirect(url_for('index'))
 
-# export CELERY_TOTAL_CORES=128
 # (python app.py &>> app.log 2>&1 &)
 if __name__ == "__main__":
 	#app.run(host='0.0.0.0', port=8080, debug = True)

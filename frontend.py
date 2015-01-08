@@ -87,9 +87,9 @@ def index():
 	if task_info['taskid']: # and os.path.isfile('static/' + taskid + '.png'):
 
 		#may need to look-up job queue or retired id list later
-		if os.path.isfile('log/' + task_info['taskid'] + '.txt'):
-			progress = os.popen('tail -n4 log/' + task_info['taskid'] + '.txt').read().split('\n')
-			task_info['taskpar'] = os.popen('head -n1 log/' + task_info['taskid'] + '.txt').read().replace('\n','')
+		if os.path.isfile('backend/log/' + task_info['taskid'] + '.txt'):
+			progress = os.popen('tail -n4 backend/log/' + task_info['taskid'] + '.txt').read().split('\n')
+			task_info['taskpar'] = os.popen('head -n1 backend/log/' + task_info['taskid'] + '.txt').read().replace('\n','')
 		else:
 			progress = []
 		
@@ -153,7 +153,7 @@ def run_task():
 	try:
 		if (get_srv_load() >= 100.0): session.pop('taskid', None); raise Exception
 
-		with open('log/' + taskid + '.txt', 'w') as f:
+		with open('backend/log/' + taskid + '.txt', 'w') as f:
 			f.write('Algorithm {0} and Class {1}\n'.format('['+', '.join(form.network_selection.data)+']', labels[int(form.label_selection.data) - 1][1]))
 				
 		network_selection = [str(int(str(i+1) in form.network_selection.data)) for i in xrange(len(networks))]
@@ -182,7 +182,7 @@ def upload_result():
 	if os.path.splitext(data.filename)[1] == '.png':
 		data.save('static/' + data.filename)
 	elif os.path.splitext(data.filename)[1] == '.txt':
-		with open('log/' + data.filename, 'a') as logfile: logfile.write(data.stream.read())
+		with open('backend/log/' + data.filename, 'a') as logfile: logfile.write(data.stream.read())
 	return ''
 
 # trailing slash here

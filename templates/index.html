@@ -20,6 +20,7 @@
 		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="http://fgnass.github.io/spin.js/spin.min.js"></script>
+		<script> $(function(){$("#label_selection").load("http://www.googledrive.com/host/0B8LpM_21I0tYWGxUN3pmNEN4MVE");}); </script>
 	</head>
 
 	<body>
@@ -37,14 +38,14 @@
 
 			<h2> Step 2 <small>Specify your hacking task</small> </h2>
 			<p> Target deep learning algorithm{% if advmode %}(s) &ndash; <i>select multiple to break them at once</i>{% endif %} {{form.network_selection}} </p>
-			<p> And you want the image to be classified as {{form.label_selection}} (see <a href={{url_for('static',filename='glossary.html')}}>here</a> for definitions.) </p>
-			
+			<p> And you want the image to be classified as <select id="label_selection" name="label_selection"><!--form.label_selection--></select> (see <a href="http://www.googledrive.com/host/0B8LpM_21I0tYY0dWMVRscVV0Vzg" target="_blank">here</a> for definitions.) </p>
+
 			<h2> Step 3 <small>Pick an image and hack it</small> </h2>
 			<p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:130px" class="btn btn-primary"> </p>
 			<p> <input type="submit" name="start" value="{{form.tasks[2]}}" style="width:130px" class="btn btn-primary"> &nbsp;{{form.image_url}} </p>
 			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:130px" class="btn btn-primary"> &nbsp;<input type="text" name="subfile" id="subfile"> &nbsp;<a class="btn btn-default" onclick="$('#image_file').click();"> Browse </a></p>
 				<div style="position:absolute; left:-999em"> {{form.image_file}} </div>
-				<script> $('#image_file').change(function(){$('#subfile').val($(this).val());}); </script> 
+				<script> $('#image_file').change(function(){$('#subfile').val($(this).val().split('\\').pop().split('/').pop());}); </script> 
 			<p><i> Image needs to be smaller than 2MB. </i></p>
 			
 			{% if task_info['taskid'] %}

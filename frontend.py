@@ -29,12 +29,13 @@ networks = [('1','Berkeley CaffeNet (ImageNet challenge 2012 winning level) [<a 
             ('2','Oxford CNN-S (ImageNet challenge 2013 winning level) [<a href="http://arxiv.org/abs/1405.3531">2</a>]'), 
             ('3','Oxford VeryDeep-19 (ImageNet challenge 2014 winning level) [<a href="http://arxiv.org/abs/1409.1556">3</a>]')]
 
-with open('synset_words.txt') as f:
+with open('backend/synset_words.txt') as f:
 	labels = pandas.DataFrame([
 		{'synset_id': l.strip().split(' ')[0], 'name': ' '.join(l.strip().split(' ')[1:]).split(',')[0]} for l in f.readlines() ])
 
 labels = labels['name'].values
 labels = [(str(i+1), '('+str(i+1).zfill(4)+') '+labels[i]) for i in xrange(labels.size)]
+#labels = [(str(i+1), '') for i in xrange(labels.size)]
 
 class MultiCheckboxField(SelectMultipleField):
 

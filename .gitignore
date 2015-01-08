@@ -1,15 +1,4 @@
-# Ignore
 .*
 *.pyc
-*.mat
-*.png
-log/*.txt
-backend/MCR/*
-backend/networks/*
-backend/*demo*
 keys.py
-
-# Except
 !.gitignore
-!log/example*
-!static/example*

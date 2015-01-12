@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title> Hacking Deep Learning Algorithms </title>
+		<title> Demo: Hacking Deep Learning Algorithms </title>
 		
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,17 +15,16 @@
 			.table-nonfluid {width:auto}
 			#spinner {text-align:middle; width:227px; height:227px; position:relative}
 			#wrapper {background-color:#ffffff; opacity:0.6; filter:alpha(opacity=60)}
-			ul {list-style:none; padding-left:0}​
+			ul {list-style:none; padding-left:0}
 		</style>
 		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 		<script src="http://fgnass.github.io/spin.js/spin.min.js"></script>
-		<script> $(function(){$("#label_selection").load("http://www.googledrive.com/host/0B8LpM_21I0tYWGxUN3pmNEN4MVE");}); </script>
 	</head>
 
 	<body>
 	<div class="container-fluid">
-		<h1> Hacking Deep Learning Algorithms <small>A Simple Web Demo</small> </h1>
+		<h1> Are Deep Learning Algorithms Easily Hackable? </h1>
 		<hr>
 		{% for message in get_flashed_messages() %}
 			<div class="flash"> {{message}} </div>
@@ -39,9 +38,10 @@
 			<h2> Step 2 <small>Specify your hacking task</small> </h2>
 			<p> Target deep learning algorithm{% if advmode %}(s) &ndash; <i>select multiple to break them at once</i>{% endif %} {{form.network_selection}} </p>
 			<p> And you want the image to be classified as <select id="label_selection" name="label_selection"><!--form.label_selection--></select> (see <a href="http://www.googledrive.com/host/0B8LpM_21I0tYY0dWMVRscVV0Vzg" target="_blank">here</a> for definitions.) </p>
+			<script> $(function(){$("#label_selection").load("http://www.googledrive.com/host/0B8LpM_21I0tYWGxUN3pmNEN4MVE");}); </script>
 
-			<h2> Step 3 <small>Pick an image and hack it</small> </h2>
-			<p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:130px" class="btn btn-primary"> </p>
+			<h2> Step 3 <small>Pick an image and try hacking it</small> </h2>
+			<!-- <p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:130px" class="btn btn-primary"> </p> -->
 			<p> <input type="submit" name="start" value="{{form.tasks[2]}}" style="width:130px" class="btn btn-primary"> &nbsp;{{form.image_url}} </p>
 			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:130px" class="btn btn-primary"> &nbsp;<input type="text" name="subfile" id="subfile"> &nbsp;<a class="btn btn-default" onclick="$('#image_file').click();"> Browse </a></p>
 				<div style="position:absolute; left:-999em"> {{form.image_file}} </div>
@@ -49,7 +49,7 @@
 			<p><i> Image needs to be smaller than 2MB. </i></p>
 			
 			{% if task_info['taskid'] %}
-				<h2> Results <small>Task targeting {{task_info['taskpar']}} (<a href={{url_for('index',taskid='%s' % task_info['taskid'])}}>link</a>).</small> </h2>
+				<h2> Results <small>Task targeting {{task_info['taskpar']}} (<a href={{url_for('index',taskid='%s' % task_info['taskid'])}}>link</a>)</small> </h2>
 				<div class="table-responsive"> <table class="table borderless table-nonfluid">
 					<tr>
 						{% if task_info['results'] %} 
@@ -77,20 +77,21 @@
 						{% else %}
 							<td align="center"> <b>Hacking in Progress</b> </td>
 						{% endif %}
-						
 					</tr>
 				</table> </div>
-				<p> 
-					{% if task_info['results'] %} <b> {{task_info['results']}} </b>
-					{% else %} Wait a bit and the page will reload itself to show the hacking results (depends on the difficulty of your task but usually less than 5 minutes).
-					{% endif %}
-				</p>
+				 
+				{% if task_info['results'] %} 
+					<p><b> {{task_info['results']}} </b></p>
+					<p> Please take this <a href={{"https://docs.google.com/forms/d/1TtosZR4G9LWwFgOc61fsrTFrpLeDJWenxnJzayxmeT4/viewform?entry.924271448=%s&entry.1241597730" % task_info['taskid']}}>survey</a> to help us better characterize deep learning algorithms and the way they agree or disagree with human vision. </p>
+				{% else %}
+					<p> Wait a bit and the page will reload itself to show the hacking results (depends on the difficulty of your task but usually less than 5 minutes). </p>
+				{% endif %}
 			{% endif %}
 		</form>
 		
 		{% if task_info['taskid'] and not task_info['results'] %}
 			<form method="POST" action="{{url_for('del_task')}}">
-				<p><i> ONLY in case this is running too long (e.g. over 30 minutes, meaning something may have gone wrong), you are suggested to <input type="submit" name="stop" value="DELETE" class="btn btn-danger btn-sm"> task and resubmit it. </i></p>
+				<p class="text-muted"><i> ONLY in case this is running too long (e.g. over 30 minutes, meaning something may have gone wrong), you are suggested to <input type="submit" name="stop" value="DELETE" class="btn btn-danger btn-sm"> task and resubmit it. </i></p>
 			</form>
 			
 			<script>
@@ -100,7 +101,7 @@
 		{% endif %}
 				
 		{% if not advmode %}
-			<!--You got it. No need to turn off JavaScript, just navigate to /adv and have some more fun.-->
+			<!--You got it. Navigate to /adv and have some more fun.-->
 			<script>
 				var disableMultiSelection = function(group){
 					return function() {var isChecked= $(this).prop("checked"); $(group).prop("checked", false); $(this).prop("checked", isChecked);} };

@@ -16,4 +16,5 @@ def run_backend(taskpar):
 	os.system('curl -s -X POST -F data=@static/{0}-sal.png "http://localhost:8080/{1}"'.format(taskpar[0],UPLOAD_PATH))
 	os.system('curl -s -X POST -F data=@static/{0}-dff.png "http://localhost:8080/{1}"'.format(taskpar[0],UPLOAD_PATH))
 	os.system('curl -s -X POST -F data=@backend/log/{0}.txt "http://localhost:8080/{1}"'.format(taskpar[0],UPLOAD_PATH))
+	# DELETE THINGS
 	return None

@@ -97,11 +97,11 @@ def index():
 		if len(progress) == 4 and progress[-1] == 'DONE':
 			#os.path.isfile(taskid+'-out.png') and os.path.isfile(taskid+'-sal.png')
 			if (progress[-2] == '1'):
-				task_info['results'] = 'Your task finished sucessfully.'
+				task_info['results'] = 'Your task finished successfully.'
 				task_info['ori_class'] = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
 				task_info['new_class'] = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
 			elif (progress[-2] == '0'):
-				task_info['results'] = 'Your task didn\'t finish in time limit, and here are the best results we got.'
+				task_info['results'] = 'Your task didn\'t finish in the time limit, and here are the best results we got.'
 				task_info['ori_class'] = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
 				task_info['new_class'] = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
 			else: #'-1', error # DISPLAY ERROR IMAGE?

@@ -44,11 +44,11 @@ class MultiCheckboxField(SelectMultipleField):
 
 class TaskForm(Form):
 
-	tasks = ['Random Noise', 'Uploading Image', 'Image at URL']
+	tasks = ['Random Noise', 'Uploading Image', 'Image at URL', 'Random Image']
 	network_selection = MultiCheckboxField(choices=networks, default=['1'], validators=[DataRequired()])
 	label_selection = SelectField(choices=labels, default=['1'], validators=[DataRequired()])
 	image_file = FileField()
-	image_url = URLField(default='http://blogs.mathworks.com/images/loren/173/imdecompdemo_01.png')
+	image_url = URLField() #default='http://blogs.mathworks.com/images/loren/173/imdecompdemo_01.png'
 	recaptcha = RecaptchaField()
 
 def valid_uuid(uuid):
@@ -56,6 +56,10 @@ def valid_uuid(uuid):
 	try: val = UUID(uuid, version=4)
 	except ValueError: return False
 	return val.hex == uuid
+
+def add_label(idx_str):
+
+	return '<abbr title="{1}">{0}</abbr>'.format(idx_str.zfill(4), labels[int(idx_str)-1][1][7:])
 
 def get_srv_load():
 	
@@ -98,12 +102,12 @@ def index():
 			#os.path.isfile(taskid+'-out.png') and os.path.isfile(taskid+'-sal.png')
 			if (progress[-2] == '1'):
 				task_info['results'] = 'Your task finished successfully.'
-				task_info['ori_class'] = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
-				task_info['new_class'] = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
+				task_info['ori_class'] = '(' + ', '.join([add_label(i) for i in progress[0].split()]) + ')'
+				task_info['new_class'] = '(' + ', '.join([add_label(i) for i in progress[1].split()]) + ')'
 			elif (progress[-2] == '0'):
 				task_info['results'] = 'Your task didn\'t finish in the time limit, and here are the best results we got.'
-				task_info['ori_class'] = '(' + ', '.join([i.zfill(4) for i in progress[0].split()]) + ')'
-				task_info['new_class'] = '(' + ', '.join([i.zfill(4) for i in progress[1].split()]) + ')'
+				task_info['ori_class'] = '(' + ', '.join([add_label(i) for i in progress[0].split()]) + ')'
+				task_info['new_class'] = '(' + ', '.join([add_label(i) for i in progress[1].split()]) + ')'
 			else: #'-1', error # DISPLAY ERROR IMAGE?
 				task_info['results'] = 'Something went wrong and we will look at it. You can come back later and resubmit your task, thanks!'
 	#else: taskid = ''
@@ -133,6 +137,9 @@ def run_task():
 			if int(run_image.info().getheaders("Content-Length")[0]) > app.config['MAX_CONTENT_LENGTH']:
 				flash('URL File Size over Limit!')
 				raise Exception
+			run_image = PILImage.open(io.BytesIO(run_image.read()))
+		elif request.form['start'] == form.tasks[3]:
+			run_image = urllib2.urlopen('http://lorempixel.com/227/227/', timeout=2) # TIMEOUT FOR SAFETY
 			run_image = PILImage.open(io.BytesIO(run_image.read()))
 		else:
 			raise Exception

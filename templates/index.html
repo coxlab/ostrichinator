@@ -37,16 +37,17 @@
 
 			<h2> Step 2 <small>Specify your hacking task</small> </h2>
 			<p> Target deep learning algorithm{% if advmode %}(s) &ndash; <i>select multiple to break them at once</i>{% endif %} {{form.network_selection}} </p>
-			<p> And you want the image to be classified as <select id="label_selection" name="label_selection"><!--form.label_selection--></select> (see <a href="http://www.googledrive.com/host/0B8LpM_21I0tYY0dWMVRscVV0Vzg" target="_blank">here</a> for definitions.) </p>
-			<script> $(function(){$("#label_selection").load("http://www.googledrive.com/host/0B8LpM_21I0tYWGxUN3pmNEN4MVE");}); </script>
+			<p> And you want the image to be classified as {{form.label_selection}} (see <a href="http://www.googledrive.com/host/0B8LpM_21I0tYY0dWMVRscVV0Vzg" target="_blank">here</a> for detailed definitions, or just <a onclick="randomize()">randomize</a> it.) </p>
+			<script> function randomize(){document.getElementById('label_selection').selectedIndex=Math.floor(1000*Math.random());}</script>
 
 			<h2> Step 3 <small>Pick an image and try hacking it</small> </h2>
 			<!-- <p> <input type="submit" name="start" value="{{form.tasks[0]}}" style="width:130px" class="btn btn-primary"> </p> -->
+			<p> <input type="submit" name="start" value="{{form.tasks[3]}}" style="width:130px" class="btn btn-primary">
 			<p> <input type="submit" name="start" value="{{form.tasks[2]}}" style="width:130px" class="btn btn-primary"> &nbsp;{{form.image_url}} </p>
 			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:130px" class="btn btn-primary"> &nbsp;<input type="text" name="subfile" id="subfile"> &nbsp;<a class="btn btn-default" onclick="$('#image_file').click();"> Browse </a></p>
 				<div style="position:absolute; left:-999em"> {{form.image_file}} </div>
 				<script> $('#image_file').change(function(){$('#subfile').val($(this).val().split('\\').pop().split('/').pop());}); </script> 
-			<p><i> Image needs to be smaller than 2MB. </i></p>
+			<p><i> Random images are fetched from lorempixel.com. Images need to be smaller than 2MB. </i></p>
 			
 			{% if task_info['taskid'] %}
 				<h2> Results <small>Task targeting {{task_info['taskpar']}} (<a href={{url_for('index',taskid='%s' % task_info['taskid'])}}>link</a>)</small> </h2>
@@ -70,9 +71,9 @@
 					</tr>
 					<tr>
 						{% if task_info['results'] %}
-							<td align="center"> <b>Initial Image</b> <br> {% if task_info['ori_class'] %} Classified as {{task_info['ori_class']}}. {% endif %} </td>
-							<td align="center"> <b>Hacked Image</b> <br> {% if task_info['new_class'] %} Classified as {{task_info['new_class']}}. {% endif %} </td>
-							<td align="center"> <b>Difference</b> <br> Normalized to the range (0&ndash;255). </td>
+							<td align="center"> <b>Initial Image</b> <br> {% if task_info['ori_class'] %} Classified as {{task_info['ori_class']|safe}}. {% endif %} </td>
+							<td align="center"> <b>Hacked Image</b> <br> {% if task_info['new_class'] %} Classified as {{task_info['new_class']|safe}}. {% endif %} </td>
+							<td align="center"> <b>Difference</b> <br> Normalized to full dynamic range. </td>
 							<td align="center"> <b>Heat Map</b> <br> Where the algorithm{% if advmode %}(s){% endif %} got fooled. </td>
 						{% else %}
 							<td align="center"> <b>Hacking in Progress</b> </td>
@@ -82,22 +83,21 @@
 				 
 				{% if task_info['results'] %} 
 					<p><b> {{task_info['results']}} </b></p>
-					<p> Please take this <a href={{"https://docs.google.com/forms/d/1TtosZR4G9LWwFgOc61fsrTFrpLeDJWenxnJzayxmeT4/viewform?entry.924271448=%s&entry.1241597730" % task_info['taskid']}}>survey</a> to help us better characterize deep learning algorithms and the way they agree or disagree with human vision. </p>
+					<p> Please take this <a href={{"https://docs.google.com/forms/d/1TtosZR4G9LWwFgOc61fsrTFrpLeDJWenxnJzayxmeT4/viewform?entry.924271448=%s" % task_info['taskid']}} target="_blank">survey</a> to help us better characterize deep learning algorithms and the way they agree or disagree with human vision. </p>
 				{% else %}
 					<p> Wait a bit and the page will reload itself to show the hacking results (depends on the difficulty of your task but usually less than 5 minutes). </p>
 				{% endif %}
 			{% endif %}
 		</form>
-		
+
 		{% if task_info['taskid'] and not task_info['results'] %}
 			<form method="POST" action="{{url_for('del_task')}}">
 				<p class="text-muted"><i> ONLY in case this is running too long (e.g. over 30 minutes, meaning something may have gone wrong), you are suggested to <input type="submit" name="stop" value="DELETE" class="btn btn-danger btn-sm"> task and resubmit it. </i></p>
 			</form>
 			
-			<script>
-				var inputs = document.getElementsByTagName("input");
-				for (var i = 0; i < inputs.length; i++) {if (inputs[i].name === "start") {inputs[i].disabled = true;}}
-			</script>
+			<script> $(document).ready(function() {$('input[name="start"]').attr('disabled','disabled');}); </script>
+		{% else %}
+			<script> $(document).ready(function() {$('input[name="start"]').removeAttr('disabled');}); </script>
 		{% endif %}
 				
 		{% if not advmode %}

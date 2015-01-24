@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title> Demo: Hacking Deep Learning Algorithms </title>
+		<title> Ostrichinator Demo </title>
 		
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,9 +23,9 @@
 	</head>
 
 	<body>
-	<div class="container-fluid">
-		<h1> Are Deep Learning Algorithms Easily Hackable? </h1>
-		<hr>
+	<div class="container">
+		<h1><a href="http://coxlab.github.io/ostrichinator/">Are Deep Learning Algorithms Easily Hackable?</a></h1>
+		
 		{% for message in get_flashed_messages() %}
 			<div class="flash"> {{message}} </div>
 		{% endfor %}
@@ -47,7 +47,7 @@
 			<p> <input type="submit" name="start" value="{{form.tasks[1]}}" style="width:130px" class="btn btn-primary"> &nbsp;<input type="text" name="subfile" id="subfile"> &nbsp;<a class="btn btn-default" onclick="$('#image_file').click();"> Browse </a></p>
 				<div style="position:absolute; left:-999em"> {{form.image_file}} </div>
 				<script> $('#image_file').change(function(){$('#subfile').val($(this).val().split('\\').pop().split('/').pop());}); </script> 
-			<p><i> Random images are fetched from lorempixel.com. Images need to be smaller than 2MB. </i></p>
+			<p><i> Random images are hosted by lorempixel.com. Images need to be smaller than 2MB. </i></p>
 			
 			{% if task_info['taskid'] %}
 				<h2> Results <small>Task targeting {{task_info['taskpar']}} (<a href={{url_for('index',taskid='%s' % task_info['taskid'])}}>link</a>)</small> </h2>
@@ -83,7 +83,7 @@
 				 
 				{% if task_info['results'] %} 
 					<p><b> {{task_info['results']}} </b></p>
-					<p> Please take this <a href={{"https://docs.google.com/forms/d/1TtosZR4G9LWwFgOc61fsrTFrpLeDJWenxnJzayxmeT4/viewform?entry.924271448=%s" % task_info['taskid']}} target="_blank">survey</a> to help us better characterize deep learning algorithms and the way they agree or disagree with human vision. </p>
+					<p><i> Please take this <a href={{"https://docs.google.com/forms/d/1TtosZR4G9LWwFgOc61fsrTFrpLeDJWenxnJzayxmeT4/viewform?entry.924271448=%s" % task_info['taskid']}} target="_blank">survey</a> to help us better characterize deep learning algorithms and the way they agree or disagree with human vision. </i></p>
 				{% else %}
 					<p> Wait a bit and the page will reload itself to show the hacking results (depends on the difficulty of your task but usually less than 5 minutes). </p>
 				{% endif %}
@@ -91,9 +91,7 @@
 		</form>
 
 		{% if task_info['taskid'] and not task_info['results'] %}
-			<form method="POST" action="{{url_for('del_task')}}">
-				<p class="text-muted"><i> ONLY in case this is running too long (e.g. over 30 minutes, meaning something may have gone wrong), you are suggested to <input type="submit" name="stop" value="DELETE" class="btn btn-danger btn-sm"> task and resubmit it. </i></p>
-			</form>
+			<p class="text-muted"><i> ONLY in case this is running too long (e.g. over 30 minutes, meaning something may have gone wrong), you are suggested to <a href="{{url_for('del_task')}}" class="text-danger">delete</a> task and resubmit it. </i></p>
 			
 			<script> $(document).ready(function() {$('input[name="start"]').attr('disabled','disabled');}); </script>
 		{% else %}

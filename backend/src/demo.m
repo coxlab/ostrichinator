@@ -47,7 +47,7 @@ try
     toc;
     
     % RUN DEMO
-    alg = @deep_dream;
+    alg = @ostrichinator_lite;
     
     tic;
     try

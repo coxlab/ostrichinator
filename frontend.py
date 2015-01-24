@@ -16,6 +16,7 @@ from keys import *
 
 from gevent.wsgi import WSGIServer
 from gevent import monkey; monkey.patch_all()
+from flask.ext.compress import Compress
 
 import redis; client = redis.Redis(host="localhost", port=6379, db=1)
 from backend.run import run_backend
@@ -24,6 +25,8 @@ import backend.info
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+app.config['COMPRESS_LEVEL'] = 1
+#Compress(app)
 
 networks = [('1','Berkeley CaffeNet (ImageNet challenge 2012 winning level) [<a href="http://arxiv.org/abs/1408.5093">1</a>]'), 
             ('2','Oxford CNN-S (ImageNet challenge 2013 winning level) [<a href="http://arxiv.org/abs/1405.3531">2</a>]'), 
@@ -46,7 +49,7 @@ class TaskForm(Form):
 
 	tasks = ['Random Noise', 'Uploading Image', 'Image at URL', 'Random Image']
 	network_selection = MultiCheckboxField(choices=networks, default=['1'], validators=[DataRequired()])
-	label_selection = SelectField(choices=labels, default=['1'], validators=[DataRequired()])
+	label_selection = SelectField(choices=labels, default=10, validators=[DataRequired()])
 	image_file = FileField()
 	image_url = URLField() #default='http://blogs.mathworks.com/images/loren/173/imdecompdemo_01.png'
 	recaptcha = RecaptchaField()
@@ -174,7 +177,7 @@ def run_task():
 
 	return redirect(url_for('index'))
 
-@app.route('/del_task', methods=['POST'])
+@app.route('/del_task')
 def del_task():
 	
 	session.pop('taskid', None) # DELETE OLD TASK?

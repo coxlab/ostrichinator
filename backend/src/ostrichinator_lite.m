@@ -1,10 +1,10 @@
-function [xmin, xsal, flag, xhist, fhist, chist] = deep_dream(net, img, tclass, allwgpu, maxiter, faststp, stpthrs)
+function [xmin, xsal, flag, xhist, fhist, chist] = ostrichinator_lite(net, img, tclass, allwgpu, maxiter, faststp, stpthrs)
 
 % PARAMETERS
 
 dispimg = 0;
 erlystp = 1;
-disthrs = 4;
+disthrs = 5;
 bfgshis = 10;
 enbalnc = 1;
 fulhist = 0;
@@ -78,7 +78,7 @@ while (fevalnum < maxiter)
         else
             fprintf('-------------------- Second Phase (SHR) --------------------\n');
             pdis = norm(xmin - img(:)) / sqrt(2); % SHRINKING
-            pfun = @(x)clip(img(:) + pdis*(x-img(:))/max(norm(x-img(:)),eps));
+            pfun = @(x)clip(img(:) + min(pdis,norm(x-img(:)))*(x-img(:))/max(norm(x-img(:)),eps));
             xini = pfun(xmin);
             
             options.maxIter = maxiter - fevalnum; options.corrections = bfgshis;
@@ -101,7 +101,7 @@ while (fevalnum < maxiter)
         else xini = xmintmp; end
         
         pdis = norm(xini - img(:)); % MAINTAINING
-        pfun = @(x)clip(img(:) + pdis*(x-img(:))/max(norm(x-img(:)),eps));
+        pfun = @(x)clip(img(:) + min(pdis,norm(x-img(:)))*(x-img(:))/max(norm(x-img(:)),eps));
         
         options.maxIter = maxiter - fevalnum; options.corrections = bfgshis;
         [xmintmp, ~, fevaltmp] = minConf_PQN(tfuno,xini,pfun,options,@plot_progress);

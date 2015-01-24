@@ -1,1 +1,170 @@
-hello world
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Ostrichinator by coxlab</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Ostrichinator</h1>
+        <p class="header"></p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/coxlab/ostrichinator/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/coxlab/ostrichinator/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/coxlab/ostrichinator">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/coxlab">coxlab</a></p>
+
+      </header>
+      <section>
+
+<h1>Are Deep Learning Algorithms Easily Hackable (i.e. Easily Fooled)?</h1>
+While deep learning algorithms are successfully pushing the boundaries of computer vision by breaking the records of ImageNet Challenges (ILSVRC) year after year recently [1-6], researchers also started to notice and had reported that images with imperceptible distortions [7,9] or being artificially generated and completely unrecognizable [8], can in many cases easily fool deep learning algorithms and cause them to report high confidences on utterly wrong classes.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+In this project, we built a <a>web demo</a> in which users can explore such kind of intriguing phenomenon simultaneously on multiple powerful deep learning networks [1-3] given any images and object classes, and by answering the questionnaire, potentially help us better characterize deep learning algorithms and the way they agree or disagree with human vision.
+Our algorithm is improved from methods proposed in [7,10] and implemented based on MatConvNet [11] and minConf [12], which should be generally efficient.
+However, due to the limitation of hardware resources, the demo site isn't able to serve too many concurrent hacking requests.
+Thus, we do encourage users to use their own machines with our freely downloadable source code, if frequent requests are to be made.
+Setting up mirror sites for this web demo would be very much appreciated, and the information can be shared through the <a href="https://github.com/coxlab/ostrichinator/wiki">wiki page</a>.
+Do try out the web demo before reading the following results and see if you think deep learning algorithms are easily fooled too.
+Click <a onclick="$('.results').slideToggle(2000)">here</a> to continue reading.
+
+<div class="results" style="display:none">
+<h2>Yes, and probably all of them.</h2>
+
+<h4 style="text-align:center; font-size:100%; margin-top:1.5em; margin-bottom:0.5em;">Table 1: Original images and their classification results from algorithms [1-3].</h4>
+<font size="2"><table style="border:none; border-collapse:collapse; margin-bottom:0.7em;">
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img0.png" style="width:180px; margin:0px;">Labeled as (<abbr title="bell pepper, large bell-shaped sweet pepper in green or red or yellow or orange or black varieties." style="border-bottom:1px dotted gray">0946,0946,0946</abbr>)<br>with <em>P</em> = (0.99,0.97,0.98)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img2.png" style="width:180px; margin:0px;">Labeled as (<abbr title="hip, the fruit of a rose plant." style="border-bottom:1px dotted gray">0990,0990,0990</abbr>)<br>with <em>P</em> = (0.99,0.87,0.99)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img4.png" style="width:180px; margin:0px;">Labeled as (<abbr title="tripod, a three-legged rack used for support." style="border-bottom:1px dotted gray">0873,0873,0873</abbr>)<br>with <em>P</em> = (0.99,1.00,1.00)</td>
+  </tr>
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img6.png" style="width:180px; margin:0px;">Labeled as (<abbr title="submarine, a submersible warship usually armed with torpedoes." style="border-bottom:1px dotted gray">0834</abbr>,<abbr title="wreck, a ship that has been destroyed at sea." style="border-bottom:1px dotted gray">0914</abbr>,<abbr title="dock, landing in a harbor next to a pier where ships are loaded and unloaded or repaired; may have gates to let water in or out; &quot;the ship arrived at the dock more than a day late&quot;." style="border-bottom:1px dotted gray">0537</abbr>)<br>with <em>P</em> = (0.39,0.60,0.34)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img8.png" style="width:180px; margin:0px;">Labeled as (<abbr title="corn, the dried grains or kernels or corn used as animal feed or ground for meal." style="border-bottom:1px dotted gray">0988,0988</abbr>,<abbr title="ear, fruiting spike of a cereal plant especially corn." style="border-bottom:1px dotted gray">0999</abbr>)<br>with <em>P</em> = (0.40,0.70,0.60)</td>
+  </tr>
+</table></font>
+
+Table 1 shows the original images used in this experiment, where we tried to hack algorithms [1-3] altogether at the same time.
+The 3‑tuples below each image for top-scored labels and their probabilities are shown in the order corresponding to algorithms [1-3] as well. 
+Generally speaking, all three algorithms accurately classified given images, especially considering their "vocabularies" are limited to the 1,000 ILSVRC classes.
+
+<h4 style="text-align:center; font-size:100%; margin-top:1.5em; margin-bottom:0.5em;">Table 2: Hacked images and their classification results from algorithms [1-3].</h4>
+<font size="2"><table style="border:none; border-collapse:collapse; margin-bottom:0.7em;">
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img0-final.png" style="width:180px; margin:0px;">Labeled as (<abbr title="tench, freshwater dace-like game fish of Europe and western Asia noted for ability to survive outside water." style="border-bottom:1px dotted gray">0001,0001,0001</abbr>)<br>with <em>P</em> = (0.96,0.97,1.00)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img2-final.png" style="width:180px; margin:0px;">Labeled as (<abbr title="Tibetan terrier, breed of medium-sized terriers bred in Tibet resembling Old English sheepdogs with fluffy curled tails." style="border-bottom:1px dotted gray">0201,0201,0201</abbr>)<br>with <em>P</em> = (0.93,0.96,0.92)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img4-final.png" style="width:180px; margin:0px;">Labeled as (<abbr title="academic gown, a gown worn by academics or judges." style="border-bottom:1px dotted gray">0401,0401,0401</abbr>)<br>with <em>P</em> = (0.92,0.90,0.97)</td>
+  </tr>
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img6-final.png" style="width:180px; margin:0px;">Labeled as (<abbr title="hook, a mechanical device that is curved or bent to suspend or hold or pull something." style="border-bottom:1px dotted gray">0601,0601,0601</abbr>)<br>with <em>P</em> = (1.00,1.00,1.00)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img8-final.png" style="width:180px; margin:0px;">Labeled as (<abbr title="slot, a slot machine that is used for gambling; &quot;they spend hours and hours just playing the slots&quot;." style="border-bottom:1px dotted gray">0801,0801,0801</abbr>)<br>with <em>P</em> = (0.99,1.00,1.00)</td>
+  </tr>
+</table></font>
+
+Using the proposed algorithm, we can effectively and efficiently discover distortions which are hardly perceptible yet causing given images to be misclassified. 
+As the results shown in Table 2, all original images are successfully hacked into specified ILSVRC classes, with surprisingly high confidences.
+Though not directly supported in the web demo, other funny ways of hacking deep learning algorithms, e.g. making one image to be differently misclassified by different algorithms, can be achieved with our algorithm as well.
+
+<h2>But, does this mean they are foolish?</h2>
+
+This intriguing and almost worrisome phenomenon, though has already had some results of cause analyses [7,8,9] and alleviating solutions [8,9,18], undoubtedly still comprises many unanswered puzzles.
+For example, whether the hacked images are completely "hallucinatory" to the deep learning algorithms (i.e. there's no way to fundamentally tell hacked and natural images apart), or just exploiting certain algorithmic shortcomings of them.
+
+<h4 style="text-align:center; font-size:100%; margin-top:1.5em; margin-bottom:0.5em;">Table 3: Feature similarities between natural and hacked images.</h4>
+<font size="2"><table style="border:none; border-collapse:collapse; margin-bottom:0.7em;">
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img0.svg" style="width:180px; margin:0px;"><em>p</em> = (1.9e-23,1.1e-25,8.4e-44)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img2.svg" style="width:180px; margin:0px;"><em>p</em> = (5.1e-10,2.2e-19,2.6e-35)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img4.svg" style="width:180px; margin:0px;"><em>p</em> = (2.9e-09,1.6e-20,5.7e-08)</td>
+  </tr>
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img6.svg" style="width:180px; margin:0px;"><em>p</em> = (2.5e-29,1.4e-43,1.9e-43)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img8.svg" style="width:180px; margin:0px;"><em>p</em> = (3.3e-26,2.9e-40,8.4e-44)</td>
+  </tr>
+</table></font>
+
+Table 3 shows the results of a simple experiment comparing the pairwise Euclidean distances between the penultimate-layer features of natural images (ILSVRC validation set) and hacked images.
+The pairwise distances between hacked images and natural images (shown as red dots), compared to pairwise distances among natural images (shown as gray dots), are distributed significantly differently (under two-sample Kolmogorov-Smirnov tests), confirming the possibility of spotting hacked images [8].
+More fundamentally, this implies the way the final softmax layers are constructed can be adjusted, e.g. to reveal more dark knowledge [13] or to incorporate advanced class membership modeling [14], to counter this problem in a principled way.
+
+<h4 style="text-align:center; font-size:100%; margin-top:1.5em; margin-bottom:0.5em;">Table 4: Half-hacked images and their classification results from algorithms [1-3].</h4>
+<font size="2"><table style="border:none; border-collapse:collapse; margin-bottom:0.7em;">
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img0-intermediate.png" style="width:180px; margin:0px;">Labeled as (<abbr title="tench, freshwater dace-like game fish of Europe and western Asia noted for ability to survive outside water." style="border-bottom:1px dotted gray">0001,0001,0001</abbr>)<br>with <em>P</em> = (1.00,1.00,1.00)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img2-intermediate.png" style="width:180px; margin:0px;">Labeled as (<abbr title="Tibetan terrier, breed of medium-sized terriers bred in Tibet resembling Old English sheepdogs with fluffy curled tails." style="border-bottom:1px dotted gray">0201,0201,0201</abbr>)<br>with <em>P</em> = (0.98,1.00,1.00)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img4-intermediate.png" style="width:180px; margin:0px;">Labeled as (<abbr title="academic gown, a gown worn by academics or judges." style="border-bottom:1px dotted gray">0401,0401,0401</abbr>)<br>with <em>P</em> = (0.97,0.84,1.00)</td>
+  </tr>
+  <tr>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img6-intermediate.png" style="width:180px; margin:0px;">Labeled as (<abbr title="hook, a mechanical device that is curved or bent to suspend or hold or pull something." style="border-bottom:1px dotted gray">0601,0601,0601</abbr>)<br>with <em>P</em> = (1.00,1.00,1.00)</td>
+    <td align="center" style="background-color:rgba(0,0,0,0);"><img src="images/img8-intermediate.png" style="width:180px; margin:0px;">Labeled as (<abbr title="slot, a slot machine that is used for gambling; &quot;they spend hours and hours just playing the slots&quot;." style="border-bottom:1px dotted gray">0801,0801,0801</abbr>)<br>with <em>P</em> = (1.00,1.00,1.00)</td>
+  </tr>
+</table></font>
+
+The algorithm proposed in this project consists of two optimization phases, where an "unconstrained" class probability maximization phase [10] precedes an iterative distortion minimization phase.
+Table 4 shows the half hacked results from the first optimization phase, in which the visual cues of corresponding object classes are apparent and strong.
+Compared to previous works [7-10] where only single networks were targeted at one time, jointly "hacking" multiple architecturally diverse networks actually produces relatively vivid rendering of target objects, which suggests the correct embedding of knowledge about visual objects.
+Similar performance advantages of deep network ensembles were reported in [19,20] as well.
+Additionally, the correct "placement" of visual features (e.g. the "graduation cap" on top of cameraman's head) also suggests that detailed spatial information is still preserved in the highly compressed features [15-17].
+
+<h2>Epilogue</h2>
+
+Being one of the main reasons why deep learning algorithms are successful, non-saturating activation function strengthens backpropagation gradients and accelerates the convergence of extremely large neural networks that can in theory embed extremely rich knowledge about the visual world.
+However, as argued by Goodfellow et al. [9], such kind of enforced linearity can be the exact reason why deep learning algorithms are easy to disturb, even though it's also possible to efficiently "patch" the problem by using the fast gradient sign regularizer.
+While it's fully justifiable to develop methods to patch this problem [9,18], we also envision a full revision of the deep learning algorithms, which aims to make them (even) more consistent with human vision.
+By providing a platform for collecting adversarial examples (i.e. hacked images) and human responses, we hope it can fundamentally help with attaining this goal.<br>
+
+</div>
+
+<h2>Citing Ostrichinator</h2>
+An arXiv paper describing the algorithmic details about this work will be released soon. Please come back later for more information.
+
+http://coxlab.github.io/ostrichinator/
+
+<h2>References</h2>
+<font size="2">
+[1] Y. Jia, E. Shelhamer, J. Donahue, S. Karayev, J. Long, R. Girshick, S. Guadarrama, and T. Darrell. Caffe: Convolutional architecture for fast feature embedding. In <em>Proceedings of the ACM International Conference on  Multimedia</em>, pages 675-678. ACM, 2014.<br>
+[2] K. Chatfield, K. Simonyan, A. Vedaldi, and A. Zisserman. Return of the devil in the details: Delving deep into convolutional nets. <em>CoRR</em>, abs/1405.3531, 2014.<br>
+[3] K. Simonyan and A. Zisserman. Very deep convolutional networks for large-scale image recognition. <em>CoRR</em>, abs/1409.1556, 2014.<br>
+[4] A. Krizhevsky, I. Sutskever, and G. E. Hinton. Imagenet classification with deep convolutional neural networks. In <em>Advances in neural information processing systems</em>, pages 1097-1105, 2012.<br>
+[5] P. Sermanet, D. Eigen, X. Zhang, M. Mathieu, R. Fergus, and Y. LeCun. OverFeat: Integrated recognition, localization and detection using convolutional networks. <em>CoRR</em>, abs/1312.6229, 2013.<br>
+[6] C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich. Going deeper with convolutions. <em>CoRR</em>, abs/1409.4842, 2014.<br>
+[7] C. Szegedy, W. Zaremba, I. Sutskever, J. Bruna, D. Erhan, I. J. Goodfellow, and R. Fergus. Intriguing properties of neural networks. <em>CoRR</em>, abs/1312.6199, 2013.<br>
+[8] A. Nguyen, J. Yosinski, and J. Clune. Deep neural networks are easily fooled: High confidence predictions for unrecognizable images. <em>CoRR</em>, abs/1412.1897, 2014.<br>
+[9] I. J. Goodfellow, J. Shlens, and C. Szegedy. Explaining and harnessing adversarial examples. <em>arXiv preprint arXiv:1412.6572</em>, 2014.<br>
+[10] K. Simonyan, A. Vedaldi, and A. Zisserman. Deep inside convolutional networks: Visualising image classification models and saliency maps. <em>CoRR</em>, abs/1312.6034, 2013.<br>
+[11] A. Vedaldi and K. Lenc. MatConvNet &ndash; convolutional neural networks for MATLAB. <em>CoRR</em>, abs/1412.4564, 2014.<br>
+[12] M. W. Schmidt, E. Berg, M. P. Friedlander, and K. P. Murphy. Optimizing costly functions with simple constraints: A limited-memory projected quasi-newton algorithm. In <em>International Conference on Artificial Intelligence and Statistics</em>, 2009.<br>
+[13] G. E. Hinton, O. Vinyals, and J. Dean. Distilling the knowledge in a neural network. In <em>NIPS 2014 Deep Learning Workshop</em>, 2014.<br>
+[14] W. J. Scheirer, L. P. Jain, and T. E. Boult. Probability models for open set recognition. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence (T-PAMI)</em>, 36, November 2014.<br>
+[15] J. Long, N. Zhang, and T. Darrell. Do convnets learn correspondence? <em>CoRR</em>, abs/1411.1091, 2014.<br>
+[16] A. Mahendran and A. Vedaldi. Understanding deep image representations by inverting them. <em>CoRR</em>, abs/1412.0035, 2014.<br>
+[17] A. S. Razavian, H. Azizpour, A. Maki, J. Sullivan, C. H. Ek, and S. Carlsson. Persistent evidence of local image properties in generic convnets. <em>CoRR</em>, abs/1411.6509, 2014.<br>
+[18] S. Gu and L. Rigazio. Towards deep neural network architectures robust to adversarial examples. <em>CoRR</em>, abs/1412.5068, 2014.<br>
+[19] D. L. Yamins, H. Hong, C. Cadieu, and J. J. DiCarlo. Hierarchical modular optimization of convolutional networks achieves representations similar to macaque IT and human ventral stream. In <em>Advances in Neural Information Processing Systems</em>, pages 3093-3101, 2013.<br>
+[20] E. Vig, M. Dorr, and D. Cox. Large-scale optimization of hierarchical features for saliency prediction in natural images. In <em>Computer Vision and Pattern Recognition (CVPR), 2014 IEEE Conference on</em>, pages 2798-2805, June 2014.
+</font>
+
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>

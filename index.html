@@ -31,7 +31,7 @@
       </header>
       <section>
 
-<h1>Are Deep Learning Algorithms Easily Hackable (i.e. Easily Fooled)?</h1>
+<h1>Are Deep Learning Algorithms Easily Hackable?</h1>
 While deep learning algorithms are successfully pushing the boundaries of computer vision by breaking the records of ImageNet Challenges (ILSVRC) year after year recently [1-6], researchers also started to notice and had reported that images with imperceptible distortions [7,9] or being artificially generated and completely unrecognizable [8], can in many cases easily fool deep learning algorithms and cause them to report high confidences on utterly wrong classes.<br>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -124,14 +124,22 @@ Additionally, the correct "placement" of visual features (e.g. the "graduation c
 <h2>Epilogue</h2>
 
 Being one of the main reasons why deep learning algorithms are successful, non-saturating activation function strengthens backpropagation gradients and accelerates the convergence of extremely large neural networks that can in theory embed extremely rich knowledge about the visual world.
-However, as argued by Goodfellow et al. [9], such kind of enforced linearity can be the exact reason why deep learning algorithms are easy to disturb, even though it's also possible to efficiently "patch" the problem by using the fast gradient sign regularizer.
-While it's fully justifiable to develop methods to patch this problem [9,18], we also envision a full revision of the deep learning algorithms, which aims to make them (even) more consistent with human vision.
+However, as also argued by Goodfellow et al. [9], such kind of enforced linearity can be the exact reason why deep learning algorithms are easy to disturb.
+While it's fully justifiable to develop methods to "patch" this problem [8,9,18], we also envision a full revision of the deep learning algorithms, which aims to make them (even) more consistent with human vision.
 By providing a platform for collecting adversarial examples (i.e. hacked images) and human responses, we hope it can fundamentally help with attaining this goal.<br>
 
 </div>
 
 <h2>Citing Ostrichinator</h2>
-An arXiv paper describing the algorithmic details about this work will be released soon. Please come back later for more information.
+
+An arXiv paper describing the algorithmic details about this project will be released soon. You can also cite this project as follows.
+
+<pre style="margin-top:1.0em">
+<code>@misc{ostrichinator,
+  author = {C.-Y. Tsai and D. Cox},
+  title = {Are Deep Learning Algorithms Easily Hackable?},
+  howpublished = {\url{http://coxlab.github.io/ostrichinator}}
+}</code></pre>
 
 <h2>References</h2>
 <font size="2">

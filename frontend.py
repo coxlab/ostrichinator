@@ -12,20 +12,24 @@ from wtforms import SelectMultipleField, widgets, SelectField
 from flask_wtf.file import FileField
 from wtforms.fields.html5 import URLField
 from wtforms.validators import DataRequired, url
-from keys import *
+from keys import SECRET_KEY, RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY
 
 from gevent.wsgi import WSGIServer
 from gevent import monkey; monkey.patch_all()
-from flask.ext.compress import Compress
+#from flask.ext.compress import Compress
 
-import redis; client = redis.Redis(host="localhost", port=6379, db=1)
 from backend.run import run_backend
+
+# Comment out for running locally
+import redis; client = redis.Redis(host="localhost", port=6379, db=1)
 import backend.info
+from keys import UPLOAD_PATH
+# ----------
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-app.config['COMPRESS_LEVEL'] = 1
+#app.config['COMPRESS_LEVEL'] = 1
 #Compress(app)
 
 networks = [('1','Berkeley CaffeNet (ImageNet challenge 2012 winning level) [<a href="http://arxiv.org/abs/1408.5093">1</a>]'), 
@@ -38,7 +42,6 @@ with open('backend/synset_words.txt') as f:
 
 labels = labels['name'].values
 labels = [(str(i+1), '('+str(i+1).zfill(4)+') '+labels[i]) for i in xrange(labels.size)]
-#labels = [(str(i+1), '') for i in xrange(labels.size)]
 
 class MultiCheckboxField(SelectMultipleField):
 
@@ -51,7 +54,7 @@ class TaskForm(Form):
 	network_selection = MultiCheckboxField(choices=networks, default=['1'], validators=[DataRequired()])
 	label_selection = SelectField(choices=labels, default=10, validators=[DataRequired()])
 	image_file = FileField()
-	image_url = URLField() #default='http://blogs.mathworks.com/images/loren/173/imdecompdemo_01.png'
+	image_url = URLField()
 	recaptcha = RecaptchaField()
 
 def valid_uuid(uuid):
@@ -66,12 +69,15 @@ def add_label(idx_str):
 
 def get_srv_load():
 	
+	srv_load = 0
+	# Comment out for running locally
 	def get_worker_num():
 		#reload(backend.info)
 		return backend.info.WORKER_NUM
 	
 	try: srv_load = 100 * client.llen("celery") / get_worker_num()
 	except: srv_load = 100
+	# ----------
 	return srv_load
 
 @app.route('/')
@@ -79,7 +85,7 @@ def index():
 
 	req_taskid = request.args.get('taskid', '')
 	if valid_uuid(req_taskid) or (req_taskid.find('example') == 0):
-		session['taskid'] = req_taskid # DELETE OLD TASK?
+		session['taskid'] = req_taskid
 		return redirect(url_for('index'))
 	
 	form = TaskForm()
@@ -91,9 +97,8 @@ def index():
 	if 'advmode' in session: advmode = session['advmode']
 	if 'taskid'  in session: task_info['taskid'] = session['taskid']
 	
-	if task_info['taskid']: # and os.path.isfile('static/' + taskid + '.png'):
+	if task_info['taskid']:
 
-		#may need to look-up job queue or retired id list later
 		if os.path.isfile('backend/log/' + task_info['taskid'] + '.txt'):
 			progress = os.popen('tail -n4 backend/log/' + task_info['taskid'] + '.txt').read().split('\n')
 			task_info['taskpar'] = os.popen('head -n1 backend/log/' + task_info['taskid'] + '.txt').read().replace('\n','')
@@ -102,7 +107,6 @@ def index():
 		
 		# RENDER RESULTS
 		if len(progress) == 4 and progress[-1] == 'DONE':
-			#os.path.isfile(taskid+'-out.png') and os.path.isfile(taskid+'-sal.png')
 			if (progress[-2] == '1'):
 				task_info['results'] = 'Your task finished successfully.'
 				task_info['ori_class'] = '(' + ', '.join([add_label(i) for i in progress[0].split()]) + ')'
@@ -111,9 +115,8 @@ def index():
 				task_info['results'] = 'Your task didn\'t finish in the time limit, and here are the best results we got.'
 				task_info['ori_class'] = '(' + ', '.join([add_label(i) for i in progress[0].split()]) + ')'
 				task_info['new_class'] = '(' + ', '.join([add_label(i) for i in progress[1].split()]) + ')'
-			else: #'-1', error # DISPLAY ERROR IMAGE?
+			else: #'-1', error
 				task_info['results'] = 'Something went wrong and we will look at it. You can come back later and resubmit your task, thanks!'
-	#else: taskid = ''
 	
 	srv_load = '%.2f' % get_srv_load()
 	return render_template("index.html", form=form, advmode=advmode, task_info=task_info, srv_load=srv_load)
@@ -130,7 +133,6 @@ def run_task():
 	try:
 		if request.form['start'] == form.tasks[0]:
 			run_image = numpy.random.randn(227,227,3)
-			#run_image = numpy.zeros((227,227,3))
 			run_image = (run_image*16/256 + 0.5).clip(0,1)
 			run_image = PILImage.fromarray((run_image*255).astype('uint8'))
 		elif request.form['start'] == form.tasks[1]:
@@ -152,7 +154,7 @@ def run_task():
 
 	try:
 		run_image = run_image.convert('RGB').resize((227,227),PILImage.ANTIALIAS)
-		taskid = str(uuid4()).replace('-','') # DELETE OLD TASK?
+		taskid = str(uuid4()).replace('-','')
 		run_image.filename = taskid + '.png'
 		#run_image.save('static/' + run_image.filename) # MOVED LATER
 		session['taskid'] = taskid
@@ -170,7 +172,10 @@ def run_task():
 		run_image.save('static/' + run_image.filename) # SAVE WHEN SCHEDULED
 		
 		# RUN NONBLOCKING TASK
+		# Comment out for running locally
 		run_backend.delay([session['taskid']] + network_selection + [str(form.label_selection.data)])
+		# Uncomment for running locally
+		# run_backend([session['taskid']] + network_selection + [str(form.label_selection.data)])
 	except:
 		flash('Task Initialization/Scheduling Error!')
 		return redirect(url_for('index'))
@@ -180,11 +185,11 @@ def run_task():
 @app.route('/del_task')
 def del_task():
 	
-	session.pop('taskid', None) # DELETE OLD TASK?
+	session.pop('taskid', None)
 	return redirect(url_for('index'))
 
 
-# only for distributed jobs
+# Comment out for running locally
 @app.route('/{0}'.format(UPLOAD_PATH), methods=['POST'])
 def upload_result():
 	
@@ -194,8 +199,8 @@ def upload_result():
 	elif os.path.splitext(data.filename)[1] == '.txt':
 		with open('backend/log/' + data.filename, 'a') as logfile: logfile.write(data.stream.read())
 	return ''
+# ----------
 
-# trailing slash here
 @app.route('/adv/') 
 def adv_mode(): 
 	
@@ -204,8 +209,6 @@ def adv_mode():
 	
 	return redirect(url_for('index'))
 
-# (python app.py &>> app.log 2>&1 &)
 if __name__ == "__main__":
-	#app.run(host='0.0.0.0', port=8080, debug = True)
 	http_server = WSGIServer(('0.0.0.0',8080), app); http_server.serve_forever()
 	

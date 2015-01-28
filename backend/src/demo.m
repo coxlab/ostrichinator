@@ -1,19 +1,26 @@
 function demo(imgfile, netpath, allwgpu, iter, faststp, stpthrs, varargin)
 
-%run('matlab/vl_setupnn.m');
-%make ARCH=glnxa64 MATLABROOT=/usr/local/MATLAB/R2014b ENABLE_IMREADJPEG=y ENABLE_GPU=y CUDAROOT=/usr/local/cuda
-%tic; mcc -m -R -nojvm -R -nodisplay -R -singleCompThread -v demo.m; toc; delete mccExcludedFiles.log; delete readme.txt;
+% INPUT VARIABLES
+% imgfile, path and filename to the target image, which must be PNG sized 227x227.
+% netpath, path to the pretrained networks' mat files.
+% allwgpu, enable GPU mode or not. 
+% iter, maximally allowed running iterations; set to 1 for recognition only mode.
+% faststp, 1 for fast stop (stopping after score of the target class becomes highest) and 0 for slow stop (stopping after probability of the target class reaches 'stpthrs').
+% stpthrs, stopping threshold for probability of the target class when faststp is set to 0.
+% varargin{1}, enable 'imagenet-caffe-ref' or not.
+% varargin{2}, target class for 'imagenet-caffe-ref'.
+% varargin{3}, enable 'imagenet-vgg-s' or not.
+% varargin{4}, target class for 'imagenet-vgg-s'.
+% varargin{5}, enable 'imagenet-vgg-verydeep-19' or not.
+% varargin{6}, target class for 'imagenet-vgg-verydeep-19'.
+
+% EXAMPLE: HACK TEST.PNG INTO CLASS 1 FOR ALL NETWORKS
+% demo('static/test.png','backend/networks','0','50','1','1.0','1','1','1','1','1','1');
+
+% EXAMPLE: COMPILE DEMO.M INTO EXECUTABLE
+% mcc -m -R -nojvm -R -nodisplay -R -singleCompThread -v demo.m;
 
 % -------------------------------------------------------------------------
-
-% imgfile: path to target image
-% netpath: path to network mat files
-% iter: max allowed iteration; set to 1 for recognition mode (saliency map as by-product)
-% faststp: 1 for stopping after target class prob becomes highest; 0 for stopping after target class prob reaches stpthrs
-% stpthrs: stopping th for target class prob (works only when faststp = 0)
-% varargin (6 variables): {caffnet_enable, caffnet_targetclass}, {vggs_...}, {vgg19_...}
-
-% example: %m=[1 1 1]; c=1; demo('matimg/img0.png','models','0','50','1','1.0',m(1),c,m(2),c,m(3),c);
 
 netfile = {'imagenet-caffe-ref.mat', ...
            'imagenet-vgg-s.mat', ...
@@ -92,7 +99,7 @@ catch ERR
     flag = -1;
 end
 
-% 1=SUCCESSFUL FINISH; 0:UNSUCCESSFUL FINISH; -1:ERROR
+% 1 = SUCCESSFUL FINISH; 0 = UNSUCCESSFUL FINISH; -1 = ERROR
 fprintf('%d\n', flag);
 fprintf('DONE');
 

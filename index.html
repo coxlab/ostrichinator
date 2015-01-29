@@ -35,7 +35,7 @@
 While deep learning algorithms are successfully pushing the boundaries of computer vision by breaking the records of ImageNet Challenges (ILSVRC) year after year recently [1-6], researchers also started to notice and had reported that images with imperceptible distortions [7,9] or being artificially generated and completely unrecognizable [8], can in many cases easily fool deep learning algorithms and cause them to report high confidences on utterly wrong classes.<br>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-In this project, we built a <a>web demo</a> in which users can explore such kind of intriguing phenomenon simultaneously on multiple powerful deep learning networks [1-3] given any images and object classes, and by answering the questionnaire, potentially help us better characterize deep learning algorithms and the way they agree or disagree with human vision.
+In this project, we built a <a href="http://deeplearning.twbbs.org/">web demo</a> in which users can explore such kind of intriguing phenomenon simultaneously on multiple powerful deep learning networks [1-3] given any images and object classes, and by answering the questionnaire, potentially help us better characterize deep learning algorithms and the way they agree or disagree with human vision.
 Our algorithm is improved from methods proposed in [7,10] and implemented based on MatConvNet [11] and minConf [12], which should be generally efficient.
 However, due to the limitation of hardware resources, the demo site isn't able to serve too many concurrent hacking requests.
 Thus, we do encourage users to use their own machines with our freely downloadable source code, if frequent requests are to be made.
@@ -116,7 +116,7 @@ More fundamentally, this implies the way the final softmax layers are constructe
 </table></font>
 
 The algorithm proposed in this project consists of two optimization phases, where an "unconstrained" class probability maximization phase [10] precedes an iterative distortion minimization phase.
-Table 4 furthermore shows the half hacked results from the first optimization phase, in which the visual cues of corresponding object classes are apparent and strong.
+Table 4 furthermore shows the half-hacked results from the first optimization phase, in which the visual cues of corresponding object classes are apparent and strong.
 Compared to previous works [7-10] where only single networks were targeted at one time, jointly "hacking" multiple architecturally diverse networks actually produces relatively vivid rendering of target objects, which suggests the correct embedding of knowledge about visual objects.
 Similar performance advantages of deep network ensembles were reported in [19,20] as well.
 Additionally, the correct "placement" of visual features (e.g. the "graduation cap" on top of cameraman's head) also suggests that detailed spatial information is still preserved in the highly compressed features [15-17].

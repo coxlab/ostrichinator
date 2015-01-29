@@ -1,5 +1,5 @@
 # Ostrichinator
-Ostrichinator aims at providing an integrated platform for generating adversarial examples and potentially collecting human responses, which may fundamentally help with improving current deep learning algorithms.
+Ostrichinator aims at providing a [web platform](http://deeplearning.twbbs.org/) for discovering adversarial examples and potentially collecting human responses, which may fundamentally help with improving current deep learning algorithms.
 The frontend of this project is based on Python Flask, which handles requests from users and passes jobs to the backend, and the backend is implemented in MATLAB based on MatConvNet and minConf.
 
 ## Frontend

@@ -1,5 +1,5 @@
 # Ostrichinator
-Ostrichinator aims at providing a [web platform](http://130.211.158.3/) for discovering adversarial examples and potentially collecting human responses, which may fundamentally help with improving current deep learning algorithms.
+Ostrichinator aims at providing a [web platform](http://ostrichinator.net/) for discovering adversarial examples and potentially collecting human responses, which may fundamentally help with improving current deep learning algorithms.
 The frontend of this project is based on Python Flask, which handles requests from users and passes jobs to the backend, and the backend is implemented in MATLAB based on MatConvNet and minConf.
 
 ## Frontend

@@ -41,10 +41,10 @@ However, due to the limitation of hardware resources, the demo site is running i
 Thus, we do encourage users to use their own machines with our freely downloadable source code, where GPU mode is fully supported too, if frequent requests are to be made.
 Setting up mirror sites for this web demo would be very much appreciated, and the information can be shared through the <a href="https://github.com/coxlab/ostrichinator/wiki">wiki page</a>.
 Do try out the web demo before reading the following results and see if you think deep learning algorithms are easily fooled too.
-Click <a onclick="$('.results').slideToggle(2000)">here</a> to continue reading.
+<div class="continue" style="display:inline">Click <a onclick="$('.results').slideToggle(2000)">here</a> to continue reading.</div>
 
 <div class="results" style="display:none">
-<script> if (window.location.hash) {$(".results").show()} </script>
+<script> if (window.location.hash) {$(".results").show(); $(".continue").hide();} </script>
 <h2>Yes, and probably all of them.</h2>
 
 <h4 style="text-align:center; font-size:100%; margin-top:1.5em; margin-bottom:0.5em;">Table 1: Original images and their classification results from algorithms [1-3].</h4>
